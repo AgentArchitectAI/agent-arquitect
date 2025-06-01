@@ -1,39 +1,47 @@
-from appwrite.client import Client
-from appwrite.services.users import Users
-from appwrite.exception import AppwriteException
 import os
+import json
+import ezdxf
+import requests
+import base64
+from appwrite.client import Client
+from appwrite.exception import AppwriteException
 
-# This Appwrite function will be executed every time your function is triggered
 def main(context):
-    # You can use the Appwrite SDK to interact with other services
-    # For this example, we're using the Users service
-    client = (
-        Client()
-        .set_endpoint(os.environ["APPWRITE_FUNCTION_API_ENDPOINT"])
-        .set_project(os.environ["APPWRITE_FUNCTION_PROJECT_ID"])
-        .set_key(context.req.headers["x-appwrite-key"])
-    )
-    users = Users(client)
-
     try:
-        response = users.list()
-        # Log messages and errors to the Appwrite Console
-        # These logs won't be seen by your end users
-        context.log("Total users: " + str(response["total"]))
-    except AppwriteException as err:
-        context.error("Could not list users: " + repr(err))
+        body = context.req.body
+        prompt = json.loads(body).get("prompt", "")
 
-    # The req object contains the request data
-    if context.req.path == "/ping":
-        # Use res object to respond with text(), json(), or binary()
-        # Don't forget to return a response!
-        return context.res.text("Pong")
+        if not prompt:
+            return context.res.json({"error": "No prompt provided"}, 400)
 
-    return context.res.json(
-        {
-            "motto": "Build like a team of hundreds_",
-            "learn": "https://appwrite.io/docs",
-            "connect": "https://appwrite.io/discord",
-            "getInspired": "https://builtwith.appwrite.io",
-        }
-    )
+        response = requests.post(
+            "http://192.168.0.101:50001",
+            json={"input": prompt},
+            headers={"Content-Type": "application/json"},
+            timeout=30
+        )
+
+        if response.status_code != 200:
+            return context.res.json({"error": "Failed to call core agent"}, 500)
+
+        agent_reply = response.json().get("output", "Diseño base de casa")
+
+        doc = ezdxf.new(dxfversion="R2010")
+        msp = doc.modelspace()
+        msp.add_text(agent_reply, dxfattribs={"height": 0.5}).set_pos((0, 0), align="LEFT")
+        dxf_path = "/tmp/plan.dxf"
+        doc.saveas(dxf_path)
+
+        with open(dxf_path, "rb") as f:
+            dxf_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+        return context.res.json({
+            "status": "ok",
+            "prompt_used": prompt,
+            "agent_reply": agent_reply,
+            "filename": "plan.dxf",
+            "base64": dxf_base64
+        })
+
+    except Exception as e:
+        return context.res.json({"error": str(e)}, 500)
