@@ -15,7 +15,7 @@ def main(context):
             return context.res.json({"error": "No prompt provided"}, 400)
 
         response = requests.post(
-            "https://swift-facts-mix.loca.lt",
+            "https://silver-walls-kneel.loca.lt",
             json={"input": prompt},
             headers={"Content-Type": "application/json"},
             timeout=30

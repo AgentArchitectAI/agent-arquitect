@@ -1,52 +1,40 @@
-import json
-import ezdxf
-import requests
+import os
+import sys
 import base64
+import ezdxf
 
 
-def call_core_agent(prompt: str):
-    response = requests.post(
-    "http://127.0.0.1:50001/api/v1/chat", 
-    json={"input": prompt},
-    headers={"Content-Type": "application/json"},
-    timeout=30
-)
+def generar_dxf_simulado(prompt: str, codigo: str):
+    contenido = f"[Plano generado para]: {prompt}"
 
+    os.makedirs("outputs", exist_ok=True)
 
-    print(f" Respuesta HTTP: {response.status_code}")
-    print(f" Body: {response.text}")
+    filename = f"plan-{codigo}.dxf"
+    path = os.path.join("outputs", filename)
 
-    if response.status_code != 200:
-        raise Exception("Error al llamar al núcleo")
-
-    if response.text.strip().startswith("<!DOCTYPE html>"):
-        raise Exception("Estás llamando al HTML del frontend, no al backend real")
-
-    return response.json().get("output", "Diseño base de casa")
-
-
-def generate_dxf(text: str, filename="plan.dxf"):
     doc = ezdxf.new(dxfversion="R2010")
     msp = doc.modelspace()
-    msp.add_text(text, dxfattribs={"height": 0.5}).set_pos((0, 0), align="LEFT")
-    path = f"./{filename}"
+    msp.add_text(contenido, dxfattribs={"height": 0.5}).set_placement((0, 0))
     doc.saveas(path)
+
+    print(f" Archivo DXF generado: {path}")
+
+    with open(path, "rb") as f:
+        base64_dxf = base64.b64encode(f.read()).decode("utf-8")
+        print(f" Base64 (primeros 100 caracteres):\n{base64_dxf[:100]}...")
+
     return path
 
 
 def main():
-    prompt = "Diseña una casa moderna de 2 pisos con terraza y cochera"
-    print(f"\n Enviando prompt al agente núcleo:\n{prompt}\n")
+    if len(sys.argv) < 3:
+        print(" Uso: python test_local.py \"<prompt>\" <codigo>")
+        print("Ejemplo: python test_local.py \"Casa de 2 pisos con terraza\" 123ABC")
+        return
 
-    reply = call_core_agent(prompt)
-    print(f"\n Respuesta del núcleo:\n{reply}\n")
-
-    path = generate_dxf(reply)
-    print(f" Archivo .dxf generado en: {path}")
-
-    with open(path, "rb") as f:
-        encoded = base64.b64encode(f.read()).decode()
-        print(f" Base64 del archivo (primeros 100 chars):\n{encoded[:100]}...")
+    prompt = sys.argv[1]
+    codigo = sys.argv[2]
+    generar_dxf_simulado(prompt, codigo)
 
 
 if __name__ == "__main__":
