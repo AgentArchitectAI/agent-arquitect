@@ -19,8 +19,7 @@ def main(context):
     try:
         raw_body = context.req.body
         if not raw_body:
-            context.res.set_status_code(400)
-            return context.res.json({"error": "Empty request body"})
+            return context.res.json({"error": "Empty request body"}, 400)
 
         data = json.loads(raw_body)
 
@@ -49,5 +48,4 @@ def main(context):
         )
 
     except Exception as e:
-        context.res.set_status_code(500)
-        return context.res.json({"error": str(e)})
+        return context.res.json({"error": str(e)}, 500)
