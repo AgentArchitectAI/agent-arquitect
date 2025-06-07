@@ -5,7 +5,10 @@ def main(context):
         req = context.req
         res = context.res
 
-        raw_body = req.body or req.body_raw.decode()
+        raw_body = req.body
+
+        if not raw_body and hasattr(req, "body_raw"):
+            raw_body = req.body_raw.decode() if isinstance(req.body_raw, bytes) else req.body_raw
 
         print("Raw body recibido:", raw_body)
 
