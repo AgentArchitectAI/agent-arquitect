@@ -3,7 +3,7 @@ import json
 def main(req):
     try:
         print("Función iniciada")
-        raw = req.body or ""
+        raw = req.req or ""
         print("Cuerpo crudo:", raw)
         data = json.loads(raw)
         prompt = data.get("prompt", "")
