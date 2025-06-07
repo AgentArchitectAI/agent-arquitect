@@ -1,7 +1,10 @@
 import json
 
-def main(req, res):
+def main(context):
     try:
+        req = context.req
+        res = context.res
+
         data = req.json if req.json else {}
         print(" Body recibido:", data)
 
