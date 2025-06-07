@@ -3,10 +3,7 @@ import json
 def main(req):
     try:
         print("Función iniciada")
-        print("Atributos de req:", dir(req))
-        if hasattr(req, 'req'):
-            print("Atributos de req.req:", dir(req.req))
-        raw = getattr(req, 'data', None) or getattr(req, 'payload', None) or ""
+        raw = getattr(req.req, 'body', None) or getattr(req.req, 'body_text', None) or ""
         print("Cuerpo crudo:", raw)
         data = json.loads(raw)
         prompt = data.get("prompt", "")
