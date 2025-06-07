@@ -2,12 +2,10 @@ import json
 
 def main(req, res):
     try:
-        raw = req.body.decode("utf-8") if isinstance(req.body, bytes) else req.body
-        print(" Body recibido:", raw)
+        data = req.json if req.json else {}
+        print(" Body recibido:", data)
 
-        data = json.loads(raw)
         prompt = data.get("prompt", "")
-
         print(" Prompt:", prompt)
 
         return res.json({
