@@ -2,13 +2,9 @@ import json
 
 def main(context):
     try:
-        req = context.req
         res = context.res
 
-        raw_body = req.body
-
-        if not raw_body and hasattr(req, "body_raw"):
-            raw_body = req.body_raw.decode() if isinstance(req.body_raw, bytes) else req.body_raw
+        raw_body = context.data
 
         print("Raw body recibido:", raw_body)
 
