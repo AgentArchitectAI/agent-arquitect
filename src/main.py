@@ -1,29 +1,22 @@
 import json
 
-def main(req):
+def main(req, res):
     try:
-        print("Función iniciada")
-        data = getattr(req.req, 'body_json', None)
-        print("body_json:", data)
-        if not data:
+        raw = req.body.decode("utf-8") if isinstance(req.body, bytes) else req.body
+        print(" Body recibido:", raw)
 
-            raw = getattr(req.req, 'body', None) or getattr(req.req, 'body_text', None) or ""
-            print("Cuerpo crudo:", raw)
-            data = json.loads(raw) if raw else {}
+        data = json.loads(raw)
         prompt = data.get("prompt", "")
-        print("Prompt recibido:", prompt)
-        return {
-            'json': {
-                "status": 200,
-                "output": f"Recibido correctamente el prompt: {prompt}"
-            }
-        }
+
+        print(" Prompt:", prompt)
+
+        return res.json({
+            "status": 200,
+            "output": f"Recibido correctamente el prompt: {prompt}"
+        })
     except Exception as e:
-        print("Error:", str(e))
-        return {
-            'json': {
-                "status": 500,
-                "error": str(e)
-            },
-            'statusCode': 500
-        }
+        print(" Error:", str(e))
+        return res.json({
+            "status": 500,
+            "error": str(e)
+        }, 500)
