@@ -1,14 +1,16 @@
 import json
 
-def main(req, res):
+def main(context):
     try:
-        prompt = req.json.get("prompt", "")
-        return res.json({
+        data = context.req.json
+        prompt = data.get("prompt", "")
+
+        return context.res.json({
             "status": 200,
-            "output": f" Recibido correctamente el prompt: {prompt}"
+            "output": f"Recibido correctamente el prompt: {prompt}"
         })
     except Exception as e:
-        return res.json({
+        return context.res.json({
             "status": 500,
             "error": str(e)
         }, 500)
