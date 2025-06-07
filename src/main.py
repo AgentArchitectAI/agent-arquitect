@@ -4,8 +4,15 @@ def main(req, res):
     try:
         data = req.json
         prompt = data.get("prompt", "")
-        return res.json({
-            "message": f"✅ Recibido correctamente el prompt: {prompt}"
-        })
+
+        result = {
+            "status": 200,
+            "output": f" Recibido correctamente el prompt: {prompt}"
+        }
+
+        return res.json(result)
     except Exception as e:
-        return res.json({ "error": str(e) }, 500)
+        return res.json({
+            "status": 500,
+            "error": str(e)
+        }, 500)
