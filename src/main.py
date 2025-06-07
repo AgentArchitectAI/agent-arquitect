@@ -2,8 +2,8 @@ import json
 
 def main(context):
     try:
-        body_str = context.req.body  
-        data = json.loads(body_str)  
+        body_raw = context.req.body or ""
+        data = json.loads(body_raw)
 
         prompt = data.get("prompt", "")
 
