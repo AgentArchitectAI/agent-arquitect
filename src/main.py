@@ -1,39 +1,25 @@
 import json
 
 def main(context):
+    req = context.req
+    res = context.res
+
     try:
-        req = context.req
-        res = context.res
+        raw_input = json.loads(req.body)
+        context.log(f"[DEBUG] Entrada cruda: {raw_input}")
 
-        body = req.body
-        context.log(f"[DEBUG] Tipo de body: {type(body)}")
-        context.log(f"[DEBUG] Body recibido: {body}")
-
-        try:
-            data = json.loads(body) if body else {}
-            context.log(f"[DEBUG] JSON decodificado: {data}")
-        except json.JSONDecodeError as e:
-            context.error(f"[ERROR] Falló json.loads(): {str(e)}")
-            return res.json({
-                "status": 400,
-                "error": "El cuerpo no es un JSON válido",
-                "raw": body
-            }, 400)
+        data_str = raw_input.get("data", "")
+        data = json.loads(data_str)
+        context.log(f"[DEBUG] JSON de 'data': {data}")
 
         prompt = data.get("prompt", "")
-        if not prompt:
-            context.log("[WARN] Prompt está vacío o no presente")
-
-        context.log(f"[DEBUG] Prompt recibido: {prompt}")
+        context.log(f"[DEBUG] Prompt: {prompt}")
 
         return res.json({
-            "status": 200,
-            "output": f"Recibido correctamente el prompt: {prompt}"
+            "ok": True,
+            "prompt": prompt
         })
 
     except Exception as e:
-        context.error(f"[FATAL] Excepción en la función: {str(e)}")
-        return res.json({
-            "status": 500,
-            "error": str(e)
-        }, 500)
+        context.error(f"[ERROR]: {str(e)}")
+        return res.json({ "error": str(e) }, 500)
