@@ -2,13 +2,14 @@ import json
 
 def main(context):
     try:
+        req = context.req
         res = context.res
 
-        raw_body = context.data
+        body = req.body
 
-        print("Raw body recibido:", raw_body)
+        print("Raw body recibido:", body)
 
-        data = json.loads(raw_body) if raw_body else {}
+        data = json.loads(body) if body else {}
         prompt = data.get("prompt", "")
         print("Prompt recibido:", prompt)
 
