@@ -3,9 +3,13 @@ import json
 def main(req):
     try:
         print("Función iniciada")
-        raw = getattr(req.req, 'body', None) or getattr(req.req, 'body_text', None) or ""
-        print("Cuerpo crudo:", raw)
-        data = json.loads(raw)
+        data = getattr(req.req, 'body_json', None)
+        print("body_json:", data)
+        if not data:
+
+            raw = getattr(req.req, 'body', None) or getattr(req.req, 'body_text', None) or ""
+            print("Cuerpo crudo:", raw)
+            data = json.loads(raw) if raw else {}
         prompt = data.get("prompt", "")
         print("Prompt recibido:", prompt)
         return {
