@@ -5,7 +5,8 @@ def main(context):
         req = context.req
         res = context.res
 
-        raw_body = req.body_raw.decode() if isinstance(req.body_raw, bytes) else req.body_raw
+        raw_body = req.body or req.body_raw.decode()
+
         print("Raw body recibido:", raw_body)
 
         data = json.loads(raw_body) if raw_body else {}
@@ -16,8 +17,9 @@ def main(context):
             "status": 200,
             "output": f"Recibido correctamente el prompt: {prompt}"
         })
+
     except Exception as e:
-        print(" Error en ejecución:", str(e))
+        print(" Error:", str(e))
         return res.json({
             "status": 500,
             "error": str(e)
