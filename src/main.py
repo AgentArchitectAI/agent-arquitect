@@ -2,27 +2,23 @@ import json
 
 def main(context):
     try:
-        context.log(" Función iniciada")
+        print("Función iniciada")
 
-        body_raw = context.req.body or ""
-        context.log(f" Cuerpo bruto recibido: {body_raw}")
+        raw = context.req.payload or ""
+        print("Payload crudo recibido:", raw)
 
-        data = json.loads(body_raw)
+        data = json.loads(raw)
         prompt = data.get("prompt", "")
-        context.log(f" Prompt extraído: {prompt}")
 
-        response = {
+        print("Prompt:", prompt)
+
+        return context.res.json({
             "status": 200,
-            "output": f" Recibido correctamente el prompt: {prompt}"
-        }
-
-        context.log(f" Respuesta enviada: {response}")
-        return context.res.json(response)
-
+            "output": f"Recibido correctamente el prompt: {prompt}"
+        })
     except Exception as e:
-        error_msg = str(e)
-        context.log(f" Error al procesar: {error_msg}")
+        print(" Error:", str(e))
         return context.res.json({
             "status": 500,
-            "error": error_msg
+            "error": str(e)
         }, 500)
