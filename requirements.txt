@@ -1,1 +1,3 @@
-appwrite
+ezdxf
+flask
+matplotlib
